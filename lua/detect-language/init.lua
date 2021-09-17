@@ -12,7 +12,6 @@ M.setup = function (options)
   })
   if options then
     vim.validate({
-      excludes = { options.excludes, 't', true },
       languages = { options.languages, 't', true },
       provider = { options.provider, 'f', true },
       picker = { options.provider, 'f', true },
@@ -53,7 +52,6 @@ M.setup = function (options)
     'yaml'
   }
 
-  local exclude_filetypes = utils.pick(options, 'excludes', { 'startify', 'nvimtree' })
   local selected_languages = utils.pick(options, 'languages', default_languages)
   local events = utils.pick(options, 'events', {
     'InsertLeave', 'TextChanged', 'FileReadPost'
@@ -66,7 +64,6 @@ M.setup = function (options)
   local analyser = provider({
     provider = utils.pick(options, 'provider', provider.treesitter()),
     picker = utils.pick(options, 'picker', picker.sensible()),
-    excludes = utils.to_map(exclude_filetypes),
     languages = selected_languages,
     max_lines = utils.pick(options, 'max_lines', 100),
     disable = {

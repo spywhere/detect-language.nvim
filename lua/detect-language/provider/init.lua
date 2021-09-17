@@ -58,10 +58,6 @@ private.evaluate = function (self)
     function (buffer)
       return buffer.filetype ~= '' and buffer.state == state.UNSET
     end,
-    -- skip excluded file types
-    function (buffer)
-      return options.excludes[buffer.filetype]
-    end,
     -- skip big file
     function ()
       return options.max_lines > 0 and last_line > options.max_lines
@@ -129,7 +125,6 @@ return setmetatable({}, {
       provider,
       picker,
       {
-        excludes = options.excludes,
         languages = selected_languages,
         max_lines = options.max_lines,
         disable = options.disable
