@@ -1,10 +1,10 @@
 local utils = require('detect-language.utils')
 local auto = require('detect-language.utils.auto')
 
-local provider = require('detect-language.provider')
-local picker = require('detect-language.picker')
-
-local M = {}
+local M = {
+  provider = require('detect-language.provider'),
+  picker = require('detect-language.picker')
+}
 
 M.setup = function (options)
   vim.validate({
@@ -61,9 +61,9 @@ M.setup = function (options)
     return
   end
 
-  local analyser = provider({
-    provider = utils.pick(options, 'provider', provider.treesitter()),
-    picker = utils.pick(options, 'picker', picker.sensible()),
+  local analyser = M.provider({
+    provider = utils.pick(options, 'provider', M.provider.treesitter()),
+    picker = utils.pick(options, 'picker', M.picker.sensible()),
     languages = selected_languages,
     max_lines = utils.pick(options, 'max_lines', 100),
     disable = {
