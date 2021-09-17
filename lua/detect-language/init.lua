@@ -66,6 +66,11 @@ local function build_analyser(languages, excludes)
   end
 
   A.async_try_languages = function ()
+    -- if is not a normal buffer, do nothing
+    if vim.bo.buftype ~= '' then
+      return
+    end
+
     if A.analysing or excludes[string.lower(vim.bo.filetype)] then
       return
     end
