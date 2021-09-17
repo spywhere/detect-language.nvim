@@ -1,18 +1,21 @@
 local fn = vim.fn
 local api = vim.api
+local utils = require('detect-language.utils')
 local iter = require('detect-language.utils.iter')
 local logger = require('detect-language.utils.logger')
+local state = require('detect-language.state')
 
 local private = {}
 
 private.picker = function (picker)
   return function (scores)
-    logger.debug('score ' .. vim.inspect(scores))
+    state.set(state.ENABLE)
+    state.set_score(scores)
     local best_language = picker.pick(scores)
     if best_language then
       vim.bo.filetype = best_language.language
     else
-      logger.info(
+      logger.inline.info(
         '[Detect-Language] Too many possible languages, try write some code'
       )
     end
@@ -21,7 +24,6 @@ end
 
 private.analyse_language = function (provider, code, delay)
   return function (language, continue, scores)
-    logger.debug('analysing ' .. language)
     table.insert(scores, {
       language = language,
       score = provider.analyse(code, language)
@@ -32,28 +34,52 @@ private.analyse_language = function (provider, code, delay)
 end
 
 private.evaluate = function (self)
-  -- skip non-normal buffer (e.g. terminal)
-  if vim.bo.buftype ~= '' then
-    return
-  end
-
   local options = self.options
-
-  -- skip excluded file types
-  if options.excludes[string.lower(vim.bo.filetype)] then
-    return
-  end
-
   local last_line = fn.line('$')
-  -- skip big file
-  if options.max_lines > 0 and last_line > options.max_lines then
+
+  if utils.some({
+    -- buffer still under analysis
+    function (buffer)
+      return buffer.state == state.ANALYSING or buffer.state == state.DISABLE
+    end,
+    -- skip non-normal buffer (e.g. terminal)
+    function (buffer)
+      return buffer.buftype ~= ''
+    end,
+    -- skip new buffer
+    function (buffer)
+      return options.disable.new and buffer.name == ''
+    end,
+    -- skip buffer with no extension
+    function (buffer)
+      return options.disable.no_extension and buffer.name ~= '' and buffer.extension == ''
+    end,
+    -- skip buffer with existing file type, that are not under auto detection
+    function (buffer)
+      return buffer.filetype ~= '' and buffer.state == state.UNSET
+    end,
+    -- skip excluded file types
+    function (buffer)
+      return options.excludes[buffer.filetype]
+    end,
+    -- skip big file
+    function ()
+      return options.max_lines > 0 and last_line > options.max_lines
+    end
+  }, {
+    name = fn.bufname(),
+    extension = fn.expand('%:e'),
+    buftype = vim.bo.buftype,
+    filetype = string.lower(vim.bo.filetype),
+    state = state.get()
+  }) then
     return
   end
 
   local lines = api.nvim_buf_get_lines(0, 0, last_line, false)
   local code = table.concat(lines, '\n')
 
-  logger.debug('--------')
+  state.set(state.ANALYSING)
   vim.defer_fn(iter.create(
     options.languages,
     private.analyse_language(
@@ -105,7 +131,8 @@ return setmetatable({}, {
       {
         excludes = options.excludes,
         languages = selected_languages,
-        max_lines = options.max_lines
+        max_lines = options.max_lines,
+        disable = options.disable
       }
     )
   end,

@@ -17,7 +17,14 @@ M.setup = function (options)
       provider = { options.provider, 'f', true },
       picker = { options.provider, 'f', true },
       events = { options.events, 't', true },
-      max_lines = { options.max_lines, 'n', true }
+      max_lines = { options.max_lines, 'n', true },
+      disable = { options.disable, 't', true }
+    })
+  end
+  if options and options.disable then
+    vim.validate({
+      new = { options.disable.new, 'b', true },
+      no_extension = { options.disable.no_extension, 'b', true }
     })
   end
   local default_languages = {
@@ -61,7 +68,11 @@ M.setup = function (options)
     picker = utils.pick(options, 'picker', picker.sensible()),
     excludes = utils.to_map(exclude_filetypes),
     languages = selected_languages,
-    max_lines = utils.pick(options, 'max_lines', 100)
+    max_lines = utils.pick(options, 'max_lines', 100),
+    disable = {
+      new = utils.pick(options, { 'disable', 'new' }, false),
+      no_extension = utils.pick(options, { 'disable', 'no_extension' }, true)
+    }
   })
 
   if not vim.tbl_isempty(events) then
