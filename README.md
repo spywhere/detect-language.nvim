@@ -4,6 +4,8 @@ _This plugin still under development_
 
 This plugin provide a better language auto-detection to neovim, powered by tree-sitter
 
+![demo](https://user-images.githubusercontent.com/1087399/133861833-9e221aca-0a9e-471a-8501-31893e3a3596.gif)
+
 ## Installation
 
 Install using a plugin manager of your choice, for example
