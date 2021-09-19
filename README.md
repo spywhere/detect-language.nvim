@@ -54,6 +54,19 @@ detect_language.setup {
   picker = detect_language.picker.sensible { top = 3 },
   -- autocmd events to trigger auto-detection
   events = { 'InsertLeave', 'TextChanged', 'FileReadPost' },
+  -- command configurations
+  commands = {
+    -- Prefix for command (set to empty will disable all commands)
+    prefix = 'DetectLanguage',
+    -- Enable buffer toggle command (suffixed with 'BufToggle')
+    toggle = true,
+    -- Enable buffer enable command (suffixed with 'BufEnable')
+    enable = true,
+    -- Enable buffer disable command (suffixed with 'BufDisable')
+    disable = true,
+    -- Enable manual trigger for auto-detection command (no suffix)
+    oneshot = true
+  },
   -- disable auto-detection for buffer over this number of lines (set to 0 for no limit)
   max_lines = 100,
   -- fine-grain setup

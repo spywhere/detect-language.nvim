@@ -37,6 +37,14 @@ M._call = function (index, group_name, ...)
   _callbacks[index](M, kill, ...)
 end
 
+M._cmd = function (index, args, ...)
+  local modifiers = {...}
+  modifiers.args = args
+  return function (...)
+    _callbacks[index](modifiers, ...)
+  end
+end
+
 M.group = function (group_name, group_fn)
   if _group then
     logger.error('still defining autogroup \'' .. _group.name .. '\'')
@@ -110,6 +118,42 @@ M.auto = function (_events, func, _filter, _modifiers)
   return function ()
     remove(index, _group.name)
   end
+end
+
+M.cmd = function (name, command)
+  assert(command[1], 'command \'' .. name ..'\' definition is required')
+  assert(
+    type(command[1]) == 'function',
+    'command \'' .. name .. '\' expect function as first argument'
+  )
+  local index = increment()
+  _callbacks[index] = command[1]
+  local definition = { 'command!' }
+  local command_args = { index, '<q-args>' }
+  for k, v in pairs(command) do
+    if type(k) == 'string' and type(v) == 'boolean' and v then
+      table.insert(definition, '-' .. k)
+      local escape_arg = ({
+        bang = '\'<bang>\'',
+        count = '\'<count>\''
+      })[k]
+      if escape_arg then
+        table.insert(command_args, escape_arg)
+      end
+    elseif type(k) == 'number' and type(v) == 'string' and v:match('^%-') then
+      table.insert(definition, v)
+    end
+  end
+  table.insert(definition, name)
+
+  local expression = {
+    'lua require(\'' .. _nvim ..'\')',
+    '_cmd('.. table.concat(command_args, ',') .. ')(<f-args>)'
+  }
+
+  table.insert(definition, table.concat(expression, '.'))
+
+  api.nvim_command(table.concat(definition, ' '))
 end
 
 return M

@@ -1,3 +1,4 @@
+local state = require('detect-language.state')
 local utils = require('detect-language.utils')
 local nvim = require('detect-language.utils.nvim')
 
@@ -16,10 +17,20 @@ M.setup = function (options)
       provider = { options.provider, 'f', true },
       picker = { options.provider, 'f', true },
       events = { options.events, 't', true },
+      commands = { options.commands, 't', true },
       max_lines = { options.max_lines, 'n', true },
       disable = { options.disable, 't', true }
     })
 
+    if options.commands then
+      vim.validate({
+        prefix = { options.commands.prefix, 's', true },
+        toggle = { options.commands.toggle, 'b', true },
+        enable = { options.commands.enable, 'b', true },
+        disable = { options.commands.disable, 'b', true },
+        oneshot = { options.commands.oneshot, 'b', true },
+      })
+    end
     if options.disable then
       vim.validate({
         new = { options.disable.new, 'b', true },
@@ -75,6 +86,46 @@ M.setup = function (options)
 
   if not vim.tbl_isempty(events) then
     nvim.auto(events, function () return analyser.evaluate {} end)
+  end
+
+  local command_prefix = utils.pick(
+    options, { 'commands', 'prefix' }, 'DetectLanguage'
+  )
+
+  local commands = {
+    toggle = {
+      suffix = 'BufToggle',
+      fn = function ()
+        state.toggle()
+      end
+    },
+    enable = {
+      suffix = 'BufEnable',
+      fn = function ()
+        state.enable()
+      end
+    },
+    disable = {
+      suffix = 'BufDisable',
+      fn = function ()
+        state.disable()
+      end
+    },
+    oneshot = {
+      fn = function ()
+        analyser.evaluate { oneshot = true }
+      end
+    },
+  }
+
+  if command_prefix ~= '' then
+    for key, config in pairs(commands) do
+      if utils.pick(options, { 'commands', key }, true) then
+        nvim.cmd(command_prefix .. (config.suffix or ''), {
+          config.fn
+        })
+      end
+    end
   end
 end
 
