@@ -39,11 +39,36 @@ M.resolve = function (value)
   end
 end
 
-M.promise = function (async_fn)
-  return M.async(function (await)
-    return await(async_fn)
-  end)
-end
+M.promise = setmetatable({
+  all = function (promises)
+    local count = vim.tbl_count(promises)
+    local values = {}
+    local done = 0
+
+    return function (resolve)
+      if vim.tbl_isempty(promises) then
+        return resolve()
+      end
+
+      for index, promise in ipairs(promises) do
+        promise(function (value)
+          values[index] = value
+          done = done + 1
+
+          if done == count then
+            return resolve(values)
+          end
+        end)
+      end
+    end
+  end
+}, {
+  __call = function (_, async_fn)
+    return M.async(function (await)
+      return await(async_fn)
+    end)
+  end
+})
 
 M.async = function (async_generator)
   vim.validate({
