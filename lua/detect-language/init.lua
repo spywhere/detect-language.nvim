@@ -1,5 +1,5 @@
 local utils = require('detect-language.utils')
-local auto = require('detect-language.utils.auto')
+local nvim = require('detect-language.utils.nvim')
 
 local M = {
   provider = require('detect-language.provider'),
@@ -19,12 +19,13 @@ M.setup = function (options)
       max_lines = { options.max_lines, 'n', true },
       disable = { options.disable, 't', true }
     })
-  end
-  if options and options.disable then
-    vim.validate({
-      new = { options.disable.new, 'b', true },
-      no_extension = { options.disable.no_extension, 'b', true }
-    })
+
+    if options.disable then
+      vim.validate({
+        new = { options.disable.new, 'b', true },
+        no_extension = { options.disable.no_extension, 'b', true }
+      })
+    end
   end
   local default_languages = {
     'javascript',
@@ -73,7 +74,7 @@ M.setup = function (options)
   })
 
   if not vim.tbl_isempty(events) then
-    auto.register(events, analyser.evaluate)
+    nvim.auto(events, function () return analyser.evaluate {} end)
   end
 end
 

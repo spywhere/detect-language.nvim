@@ -1,5 +1,5 @@
 local logger = require('detect-language.utils.logger')
-local _auto = 'detect-language.utils.auto'
+local _nvim = 'detect-language.utils.nvim'
 local api = vim.api
 local fn = vim.fn
 local std = {}
@@ -69,11 +69,11 @@ M.group = function (group_name, group_fn)
   _group = nil
 end
 
-M.register = function (_events, func, _filter, _modifiers)
+M.auto = function (_events, func, _filter, _modifiers)
   if not _group then
     M.group(
       function ()
-        M.register(_events, func, _filter, _modifiers)
+        M.auto(_events, func, _filter, _modifiers)
       end
     )
     return
@@ -93,7 +93,7 @@ M.register = function (_events, func, _filter, _modifiers)
     string.format('%q', _group.name)
   }
   local fn_call = {
-    'lua require(\'' .. _auto ..'\')',
+    'lua require(\'' .. _nvim ..'\')',
     '_call(' .. table.concat(call_args, ', ') .. ')'
   }
   local expression = {
