@@ -55,13 +55,19 @@ private.evaluate = function (self, request)
   }
 
   if utils.some({
-    -- buffer still under analysis / disabled
+    -- buffer still under analysis / is disabled
     function (b)
       if b.state == state.ANALYSING then
+        if oneshot then
+          logger.inline.info(
+            '[Detect-Language] Buffer is under analysis, please try again'
+          )
+        end
+
         return true
       end
 
-      -- disabled and not a oneshot command
+      -- disabled buffer
       return b.state == state.DISABLE and not oneshot
     end,
     -- skip non-normal buffer (e.g. terminal)
@@ -70,19 +76,24 @@ private.evaluate = function (self, request)
     end,
     -- skip new buffer
     function (b)
-      return options.disable.new and b.name == ''
+      return options.disable.new and b.name == '' and not oneshot
     end,
     -- skip buffer with no extension
     function (b)
-      return options.disable.no_extension and b.name ~= '' and b.extension == ''
+      return options.disable.no_extension and
+        b.name ~= '' and
+        b.extension == '' and
+        not oneshot
     end,
     -- skip buffer with existing file type, that are not under auto detection
     function (b)
-      return b.filetype ~= '' and b.state == state.UNSET
+      return b.filetype ~= '' and b.state == state.UNSET and not oneshot
     end,
     -- skip big file
     function ()
-      return options.max_lines > 0 and last_line > options.max_lines
+      return options.max_lines > 0 and
+        last_line > options.max_lines and
+        not oneshot
     end
   }, buffer) then
     return
