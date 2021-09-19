@@ -115,7 +115,7 @@ M.setup = function (options)
       fn = function ()
         analyser.evaluate { oneshot = true }
       end
-    },
+    }
   }
 
   if command_prefix ~= '' then
