@@ -20,6 +20,12 @@ Plug 'spywhere/detect-language.nvim'
 Simply put the following configuration to your .lua config file
 
 ```lua
+require('detect-language').setup {}
+```
+
+The following configuration is defaults included with this plugin
+
+```lua
 local detect_language = require('detect-language')
 detect_language.setup {
   -- list of languages to be auto-detected (must be supported by tree-sitter)
@@ -105,7 +111,7 @@ require('detect-language').picker.sensible {
 }
 ```
 
-Algorithm
+#### Algorithm
 
 - Pick the language with highest score
 - Keep track of languages with the same highest score
