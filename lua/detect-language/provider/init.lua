@@ -126,6 +126,7 @@ private.evaluate = function (self, request)
     local scores = {}
 
     for index, promise in ipairs(promises) do
+      -- give control back to neovim, unblock the main thread a bit
       await(delay())
       scores[index] = await(promise())
     end
