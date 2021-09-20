@@ -1,7 +1,7 @@
 local fn = vim.fn
 local api = vim.api
 local utils = require('detect-language.utils')
-local iter = require('detect-language.utils.iter')
+local a = require('detect-language.utils.async')
 local logger = require('detect-language.utils.logger')
 local state = require('detect-language.state')
 
@@ -30,18 +30,14 @@ end
 private.analyse_language = function (context)
   local provider = context.provider
   local code = context.code
-  local delay = context.delay
-  return function (language, continue, scores)
-    local score = provider.analyse(code, language)
+  return function (language)
+    return function ()
+      return a.promise(function (resolve)
+        local score = provider.analyse(code, language)
 
-    if score ~= nil then
-      table.insert(scores, {
-        language = language,
-        score = score
-      })
+        return resolve({ language = language, score = score })
+      end)
     end
-
-    delay(function () return continue(scores) end)
   end
 end
 
@@ -111,16 +107,31 @@ private.evaluate = function (self, request)
     buffer = buffer,
     provider = self.provider,
     picker = self.picker,
-    code = code,
-    delay = function (callback) vim.defer_fn(callback, 10) end
+    code = code
   }
   state.set(state.ANALYSING)
-  vim.defer_fn(iter.create(
-    options.languages,
+
+  local promises = vim.tbl_map(
     private.analyse_language(context),
-    private.picker(context),
-    {}
-  ), 0)
+    options.languages
+  )
+
+  local delay = function ()
+    return a.promise(function (resolve)
+      vim.defer_fn(resolve, 0)
+    end)
+  end
+
+  a.async(function (await)
+    local scores = {}
+
+    for index, promise in ipairs(promises) do
+      await(delay())
+      scores[index] = await(promise())
+    end
+
+    return scores
+  end)(private.picker(context))
 end
 
 local analyser = setmetatable({}, {
