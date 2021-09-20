@@ -27,6 +27,14 @@ M.set_score = function (score)
   api.nvim_buf_set_var(0, score_name, vim.inspect(score))
 end
 
+M.get_score = function ()
+  if fn.exists('b:' .. score_name) == 0 then
+    return '[Detect-Language] No score'
+  end
+
+  return api.nvim_buf_get_var(0, score_name)
+end
+
 M.enable = function ()
   if M.get() == M.ANALYSING then
     logger.inline.info(

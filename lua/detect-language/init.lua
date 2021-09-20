@@ -29,6 +29,7 @@ M.setup = function (options)
         enable = { options.commands.enable, 'b', true },
         disable = { options.commands.disable, 'b', true },
         oneshot = { options.commands.oneshot, 'b', true },
+        score_list = { options.commands.score_list, 'b', false }
       })
     end
     if options.disable then
@@ -114,6 +115,12 @@ M.setup = function (options)
     oneshot = {
       fn = function ()
         analyser.evaluate { oneshot = true }
+      end
+    },
+    score_list = {
+      suffix = 'BufScore',
+      fn = function ()
+        print(state.get_score())
       end
     }
   }
