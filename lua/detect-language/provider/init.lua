@@ -35,6 +35,10 @@ private.analyse_language = function (context)
       return a.promise(function (resolve)
         local score = provider.analyse(code, language)
 
+        if score == nil then
+          return resolve()
+        end
+
         return resolve({ language = language, score = score })
       end)
     end
