@@ -54,16 +54,10 @@ detect_language.setup {
     'vim',
     'yaml'
   },
-  -- auto-detection analyser
-  provider = detect_language.provider.treesitter {
-    -- minimum score to be considered as candidate languages
-    minimum = 0
-  },
-  -- language picker
-  picker = detect_language.picker.sensible {
-    -- pick when there is less than or equal to this number of suitable languages
-    top = 3
-  },
+  -- auto-detection analyser (see Analyser section below for options)
+  provider = detect_language.provider.treesitter { minimum = 0 },
+  -- language picker (see Picker section below for options)
+  picker = detect_language.picker.sensible { top = 3 },
   -- autocmd events to trigger auto-detection
   events = { 'InsertLeave', 'TextChanged', 'FileReadPost' },
   -- command configurations
@@ -103,7 +97,10 @@ So if JavaScript comes before TypeScript and both has the same score, JavaScript
 Language analyser powered by tree-sitter
 
 ```lua
-require('detect-language').provider.treesitter {}
+require('detect-language').provider.treesitter {
+  -- minimum score to be considered as candidate languages
+  minimum = 0
+}
 ```
 
 ## Picker
