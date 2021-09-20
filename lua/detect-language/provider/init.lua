@@ -125,10 +125,13 @@ private.evaluate = function (self, request)
   a.async(function (await)
     local scores = {}
 
-    for index, promise in ipairs(promises) do
+    for _, promise in ipairs(promises) do
       -- give control back to neovim, unblock the main thread a bit
       await(delay())
-      scores[index] = await(promise())
+      local score = await(promise())
+      if score then
+        table.insert(scores, score)
+      end
     end
 
     return scores
