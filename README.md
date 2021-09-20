@@ -77,7 +77,9 @@ detect_language.setup {
     -- Enable buffer disable command (suffixed with 'BufDisable')
     disable = true,
     -- Enable manual trigger for auto-detection command (no suffix)
-    oneshot = true
+    oneshot = true,
+    -- Enable command for listing language scores (suffixed with 'BufScore')
+    score_list = false
   },
   -- disable auto-detection for buffer over this number of lines (set to 0 for no limit)
   max_lines = 100,
