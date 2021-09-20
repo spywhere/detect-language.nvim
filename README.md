@@ -55,9 +55,15 @@ detect_language.setup {
     'yaml'
   },
   -- auto-detection analyser
-  provider = detect_language.provider.treesitter {},
+  provider = detect_language.provider.treesitter {
+    -- minimum score to be considered as candidate languages
+    minimum = 0
+  },
   -- language picker
-  picker = detect_language.picker.sensible { top = 3 },
+  picker = detect_language.picker.sensible {
+    -- pick when there is less than or equal to this number of suitable languages
+    top = 3
+  },
   -- autocmd events to trigger auto-detection
   events = { 'InsertLeave', 'TextChanged', 'FileReadPost' },
   -- command configurations

@@ -14,8 +14,8 @@ M.setup = function (options)
   if options then
     vim.validate({
       languages = { options.languages, 't', true },
-      provider = { options.provider, 'f', true },
-      picker = { options.provider, 'f', true },
+      provider = { options.provider, 'c', true },
+      picker = { options.provider, 'c', true },
       events = { options.events, 't', true },
       commands = { options.commands, 't', true },
       max_lines = { options.max_lines, 'n', true },

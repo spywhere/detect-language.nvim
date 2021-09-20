@@ -32,10 +32,14 @@ private.analyse_language = function (context)
   local code = context.code
   local delay = context.delay
   return function (language, continue, scores)
-    table.insert(scores, {
-      language = language,
-      score = provider.analyse(code, language)
-    })
+    local score = provider.analyse(code, language)
+
+    if score ~= nil then
+      table.insert(scores, {
+        language = language,
+        score = score
+      })
+    end
 
     delay(function () return continue(scores) end)
   end

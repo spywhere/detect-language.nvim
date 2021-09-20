@@ -9,8 +9,8 @@ end
 
 local function process_async(async_generator, resolve)
   vim.validate({
-    async_generator = { async_generator, 'f' },
-    resolve = { resolve, 'f', true }
+    async_generator = { async_generator, 'c' },
+    resolve = { resolve, 'c', true }
   })
   local thread = co.create(async_generator)
   local function process(last_value)
@@ -41,6 +41,9 @@ end
 
 M.promise = setmetatable({
   all = function (promises)
+    vim.validate({
+      promises = { promises, 't' }
+    })
     local count = vim.tbl_count(promises)
     local values = {}
     local done = 0
@@ -64,6 +67,9 @@ M.promise = setmetatable({
   end
 }, {
   __call = function (_, async_fn)
+    vim.validate({
+      async_fn = { async_fn, 'c' }
+    })
     return M.async(function (await)
       return await(async_fn)
     end)
@@ -72,7 +78,7 @@ M.promise = setmetatable({
 
 M.async = function (async_generator)
   vim.validate({
-    async_generator = { async_generator, 'f' }
+    async_generator = { async_generator, 'c' }
   })
   return function (resolve)
     return process_async(async_generator, resolve)

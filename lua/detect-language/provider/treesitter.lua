@@ -1,5 +1,6 @@
 local ts = vim.treesitter
 local tshealth = require('vim.treesitter.health')
+local utils = require('detect-language.utils')
 
 local function count_children(node, level)
   if level == nil then
@@ -19,8 +20,9 @@ local function count_children(node, level)
   return count
 end
 
-return function ()
+return function (options)
   local M = {}
+  local minimum = utils.pick(options, 'minimum', 0)
 
   M.get_supported_languages = function ()
     local parsers = tshealth.list_parsers()
@@ -49,6 +51,9 @@ return function ()
       end
     end
 
+    if count < minimum then
+      return nil
+    end
     return count
   end
 

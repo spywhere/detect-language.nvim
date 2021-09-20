@@ -3,8 +3,8 @@ local M = {}
 M.create = function (list, fn, done, default)
   vim.validate({
     list = { list, 't' },
-    fn = { fn, 'f' },
-    done = { done, 'f', true }
+    fn = { fn, 'c' },
+    done = { done, 'c', true }
   })
   local function iter_item(index, accumulator)
     local item = list[index]

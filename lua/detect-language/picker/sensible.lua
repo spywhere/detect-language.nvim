@@ -3,6 +3,7 @@ local utils = require('detect-language.utils')
 -- pick highest score or the first item out of top 3, otherwise don't pick
 return function (options)
   local M = {}
+  local top = utils.pick(options, 'top', 3)
 
   M.pick = function (list)
     local highest = 0
@@ -19,8 +20,8 @@ return function (options)
       end
     end
 
-    if same > utils.pick(options, 'top', 3) then
-      -- more than top 3, pick nothing
+    if same > top then
+      -- more than top, pick nothing
       return nil
     end
     return picked
