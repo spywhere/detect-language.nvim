@@ -1,5 +1,4 @@
 local ts = vim.treesitter
-local tshealth = require('vim.treesitter.health')
 local utils = require('detect-language.utils')
 
 local function count_children(node, level)
@@ -25,7 +24,7 @@ return function (options)
   local minimum = utils.pick(options, 'minimum', 0)
 
   M.get_supported_languages = function ()
-    local parsers = tshealth.list_parsers()
+    local parsers = vim.api.nvim_get_runtime_file('parser/*', true)
 
     local languages = {}
     for _, parser in ipairs(parsers) do
